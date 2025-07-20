@@ -7,7 +7,6 @@ import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -17,35 +16,38 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import jakarta.persistence.*;
 
 import javax.sql.DataSource;
-
+import java.util.*;
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
-        entityManagerFactoryRef = "appEntityManagerFactory",
-        transactionManagerRef = "appdbTransactionManager",
-        basePackages = "com.restFullApi.multidb.respository.appdb"
+        entityManagerFactoryRef = "sekolahEntityManagerFactory",
+        transactionManagerRef = "sekolahTransactionManager",
+        basePackages = "com.restfullApi.multidb.repository.sekolah"
 )
+public class sekolahConfig {
 
-public class sekolahDbConfig {
-    @Primary
     @Bean(name = "sekolahDataSource")
     @ConfigurationProperties(prefix = "db.sekolah")
     public DataSource sekolahDataSource() {
-        return DataSourceBuilder.create().type(HikariDataSource.class).build();
-
+        return DataSourceBuilder.create()
+                .type(HikariDataSource.class)
+                .build();
     }
 
-    @Primary
-    @Bean(name = "appEntityManagerFactory")
-    public LocalContainerEntityManagerFactoryBean sekolahEntityManagerFactory(EntityManagerFactoryBuilder builder, @Qualifier("sekolahDataSource") DataSource dataSource) {
-        return builder.dataSource(dataSource).packages("com.restFullApi.multidb.model").persistenceUnit("sekolah").build();
-
+    @Bean(name = "sekolahEntityManagerFactory")
+    public LocalContainerEntityManagerFactoryBean sekolahEntityManagerFactory(
+            EntityManagerFactoryBuilder builder,
+            @Qualifier("sekolahDataSource") DataSource dataSource) {
+        return builder
+                .dataSource(dataSource)
+                .packages("com.restfullApi.multidb.model.sekolah")
+                .persistenceUnit("sekolah")
+                .build();
     }
 
-    @Primary
-    @Bean(name = "appEntityManager")
-    public PlatformTransactionManager appdbTransactionManager(
-            @Qualifier("appEntityManagerFactory") EntityManagerFactory entityManagerFactory) {
+    @Bean(name = "sekolahTransactionManager")
+    public PlatformTransactionManager sekolahTransactionManager(
+            @Qualifier("sekolahEntityManagerFactory") EntityManagerFactory entityManagerFactory) {
         return new JpaTransactionManager(entityManagerFactory);
     }
 }
